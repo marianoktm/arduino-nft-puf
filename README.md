@@ -15,7 +15,6 @@ The project consists of three main components:
 ### 1. Arduino SRAM PUF
 - **Physical Unclonable Function (PUF)** implementation using the inherent randomness in SRAM startup values.
 - A custom bootloader and data manipulation are required to obtain a stable PUF response.
-- Special thanks to **Dr. Franco Cirillo** for providing the necessary hardware and software.
 
 ### 2. NFT Smart Contract
 - A simple **NFT Smart Contract** compliant with the **ERC-721 standard**.
