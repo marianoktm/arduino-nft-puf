@@ -51,6 +51,8 @@ In order to deploy the NFT to a testnet, a new hardhat project should be initial
 10. From the root of the project, run `npx hardhat ignition deploy ignition/modules/ArduinoNFT.js --network localhost`.
 11. Now the contract is deployed and it is possible to interact with it.
 
+Note that the deployment script `ArduinoNFT.js` sets the account "0" as the owner of the contract. If another owner is needed or desired, it can be selected by modifying the row `const owner = m.getAccount(0);`.
+
 ### 3. Interacting with the NFT [WIP]
 
 
