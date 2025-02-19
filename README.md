@@ -79,11 +79,12 @@ Now the two boards can be connected using the following scheme:
 | 5V                  | 5V              |
 | GND                 | GND             |
 
-#### Loading the Custom Bootloader
+#### Compiling and loading the Custom Bootloader
 Download the content of `Arduino PUF` and follow these steps:
 1. Connect the Programmer board to the Target board using the above table;
 2. Connect the Programmer board to the PC;
-3. Go to `scripts` and run `./flash_bootloader.sh bootloader.hex`
+3. Go to `scripts` and compile the bootloader using `./compile_bootloader.sh`. The compiled bootloader will be available in `build`.
+4. Go to `scripts` and run `./flash_bootloader.sh <path to bootloader.hex>`
 
 #### Obtaining two unstable PUFs
 We will use minicom to obtain two instable PUFs from the Target board:
@@ -107,6 +108,8 @@ Now go to `bootloader` and locate the `puf.c` file. Insert the converted helper 
 ```c 
    const uint8_t helper_data[304] PROGMEM = {/*insert here the converted helper data*/};
 ```
+
+Compile and load the bootloader again.
 
 Now we can extract a stable PUF:
 1. Connect the Target board to the PC;
