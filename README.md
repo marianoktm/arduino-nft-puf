@@ -95,6 +95,7 @@ To load a custom bootloader, one Arduino board will act as an **ISP (In-System P
    ```bash
    ./flash_bootloader.sh <path to bootloader.hex>
    ```
+   Make sure to use the correct file.
 
 #### Obtaining Two Unstable PUFs
 1. Disconnect the Target board from the Programmer board.
@@ -106,12 +107,16 @@ To load a custom bootloader, one Arduino board will act as an **ISP (In-System P
    ```
    Note the port name (e.g., `/dev/ttyUSB0` or `/dev/ttyACM0`).
 5. Open two terminals and run `minicom` on both:
+   On the first terminal:
    ```bash
    minicom -D /dev/tty.usb_portname -b 115200 -C file1.txt
+   ```
+   On the second terminal:
+   ```bash
    minicom -D /dev/tty.usb_portname -b 115200 -C file2.txt
    ```
-   Disconnect and reconnect the Target board between `minicom` executions.
-6. Extract the unstable PUFs from the two files and save them as `enrollement/dump/new_arduino_1_0.puf` and `enrollement/dump/new_arduino_1_1.puf`.
+   Make sure to disconnect and reconnect the Target board between `minicom` executions.
+7. Extract the unstable PUFs from the two files and save them as `enrollement/dump/new_arduino_1_0.puf` and `enrollement/dump/new_arduino_1_1.puf`.
 
 #### Obtaining a Stable PUF
 1. Run the enroller script:
@@ -123,7 +128,7 @@ To load a custom bootloader, one Arduino board will act as an **ISP (In-System P
    ```c
    const uint8_t helper_data[304] PROGMEM = {/*insert here the converted helper data*/};
    ```
-4. Recompile and reload the bootloader.
+4. Compile the modified bootloader and burn it on the Target board.
 5. Extract the stable PUF:
    - Connect the Target board to the PC.
    - Run `minicom`:
@@ -132,6 +137,8 @@ To load a custom bootloader, one Arduino board will act as an **ISP (In-System P
      ```
    - Type `x` in the `minicom` terminal to print the stable PUF.
    - The stable PUF will be saved in `puf_response.txt`.
+     
+Now the stable PUF can be used as desired.
 
 ### 2. Deploying the NFT on Hardhat Testnet
 
