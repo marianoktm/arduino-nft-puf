@@ -172,7 +172,7 @@ To load a custom bootloader, one Arduino board will act as an **ISP (In-System P
      ```bash
      npx hardhat ignition deploy ignition/modules/ArduinoNFT.js --network localhost
      ```
-   - The contract is now deployed, and you can interact with it.
+The contract is now deployed, and you can interact with it.
 
 ### 3. Interacting with the NFT [WIP]
 
