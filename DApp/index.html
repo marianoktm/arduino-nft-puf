@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web3.js MetaMask Tutorial</title>
+  <!-- import Web3.js -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+</head>
+
+<body>
+<!-- placeholders -->
+<div id="provider"></div>
+<div id="currentAccount"></div>
+
+<div id="warn" style="color: red"></div>
+
+<div>
+  <button id="getCurrentAccountButton">Request MetaMask Accounts</button>
+</div>
+
+<h2>PUF Input</h2>
+<label for="pufInput">Insert PUF here:</label>
+<input type="text" id="pufInput" placeholder="0xABABAB...">
+<label for="accountInput">Insert new NFT owner's public key here:</label>
+<input type="text" id="accountInput" placeholder="0xabab...">
+<button id="mintButton">Convert PUF and mint!</button>
+
+<h3>Results:</h3>
+<div id="transactionResult"></div>
+
+<!-- scripts -->
+<script type="module">
+  let web3;
+  let contract;
+
+  let abiPath = "";
+  let contractABI = "";
+  let contractAddress = "";
+
+  /**
+   * "main"
+   */
+  if (window.ethereum) {
+    initWeb3(); // Initialize Web3
+    registerEvents(); // Register all events for the interface
+  }
+  else {
+    document.getElementById('warn').innerHTML = "Please <a href='https://metamask.io/download/'>install MetaMask</a>.";
+  }
+
+  /**
+   * Initializes the application by connecting it to MetaMask
+   */
+  async function initWeb3() {
+    web3 = new Web3(window.ethereum);
+
+    if (window.ethereum.isMetaMask) {
+      document.getElementById('provider').innerText = 'Connected to Ethereum with MetaMask.';
+    } else {
+      document.getElementById('provider').innerText = 'Non-MetaMask Ethereum provider detected.';
+    }
+
+    try {
+      await fetch('./config.json')
+              .then(response => response.json())
+              .then(data => readJSON(data))
+              .catch(error => {
+                console.error('Error fetching config.json:', error);
+              });
+      console.log("ABI: ", contractABI);
+      console.log("Address: ", contractAddress);
+    }
+    catch (error) {
+      console.log("Error during JSON fetching: ", error);
+    }
+  }
+
+  async function readJSON(data) {
+    console.log(data);
+    JSON.
+    abiPath = data.abi_path;
+    contractAddress = data.contract_address;
+
+  }
+
+  /**
+   * Insert here all the various events to track
+   */
+  async function registerEvents() {
+    try {
+      // Get current account on a button click
+      document.getElementById('getCurrentAccountButton').addEventListener('click', getCurrentAccountHandler);
+      // Verifica il proprietario dell'NFT
+      //document.getElementById("checkNftOwnerButton").addEventListener("click", checkNftOwnerHandler);
+      // Mint NFT con la PUF
+      document.getElementById("mintButton").addEventListener("click", mintHandler);
+    }
+    catch (error) {
+      console.log("Error during event handlers registration: ", error);
+    }
+
+  }
+
+  /**
+   *  Event handler for the "click" event on the "requestAccountsButton" button.
+   *  It gets all the MetaMask accounts and prints the account currently in use.
+   */
+  async function getCurrentAccountHandler() {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await web3.eth.getAccounts();
+    document.getElementById('currentAccount',).innerText = `Current Account: ${accounts[0]}`;
+  }
+
+  /**
+   *  Event handler for the "click" event on the "mintButton" button.
+   *  It gets the PUF from the "pufInput" field, converts it into a SHA-256 digest and
+   *  mints a new NFT from it.
+   */
+  async function mintHandler() {
+    if (!window.ethereum) {
+      alert("You must be connected to MetaMask first!");
+      return;
+    }
+
+    const pufInput = document.getElementById("pufInput").value;
+    if (!pufInput) {
+      alert("Insert a valid PUF!");
+      return;
+    }
+
+    const accountInput = document.getElementById("accountInput").value;
+    if (!accountInput) {
+      alert("Inserisci a valid account!");
+      return;
+    }
+
+    const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
+    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
+
+    try {
+      document.getElementById('warn').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
+      alert("NFT successfully minted!");
+    } catch (error) {
+      console.error("Minting error:", error);
+      alert("Transaction error. Check the console for more informations.");
+    }
+  }
+
+  async function checkNftOwnerHandler() {
+    if (!window.ethereum) {
+      alert("You must be connected to MetaMask first!");
+      return;
+    }
+
+    const pufInput = document.getElementById("pufInput").value;
+    if (!pufInput) {
+      alert("Insert a valid PUF!");
+      return;
+    }
+
+    // Converte la PUF in SHA-256
+    const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
+    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
+
+    try {
+      const owner = await contract.ownerOfDevice(formattedDeviceDigest);
+      alert(`Device owner: ${owner}`);
+    } catch (error) {
+      console.error("Error during owner retrieval:", error);
+      alert("Error: An NFT with this PUF may not be minted yet...");
+    }
+  }
+
+  /**
+   *  Event handler for the "click" event on the "mintButton" button.
+   *  It gets the PUF from the "pufInput" field, converts it into a SHA-256 digest and
+   *  mints a new NFT from it.
+   */
+  async function convertPufHandler() {
+    const pufInput = document.getElementById("pufInput").value;
+    if (!pufInput) {
+      alert("Inserisci un valore PUF valido!");
+      return;
+    }
+
+    // Converti la PUF in SHA-256 usando ethers.js
+    const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
+    document.getElementById("sha256Result").innerText = `SHA-256: ${hashedPUF}`;
+
+    // Formatta l'hash per il contratto Ethereum
+    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
+    document.getElementById("formattedResult").innerText = `Device Digest: ${ethers.utils.hexlify(formattedDeviceDigest)}`;
+
+    // Copia negli appunti
+    /*
+    navigator.clipboard.writeText(ethers.utils.hexlify(formattedDeviceDigest))
+            .then(() => alert("Hash copiato negli appunti!"))
+            .catch(err => console.error("Errore nel copiare:", err));
+     */
+  }
+
+  async function mint(pufHash, ownerPrivateKey) {
+
+  }
+
+  async function getOwner(pufHash) {
+
+  }
+
+</script>
+</body>
+</html>
