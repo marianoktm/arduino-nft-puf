@@ -37,7 +37,7 @@
   let contract;
 
   let abiPath = "";
-  let contractABI = "";
+  let contractABI;
   let contractAddress = "";
 
   /**
@@ -66,7 +66,7 @@
     try {
       await fetch('./config.json')
               .then(response => response.json())
-              .then(data => readJSON(data))
+              .then(data => readConfigJSON(data))
               .catch(error => {
                 console.error('Error fetching config.json:', error);
               });
@@ -74,14 +74,46 @@
     catch (error) {
       console.log("Error during JSON fetching: ", error);
     }
+
+    try {
+      await fetch(abiPath)
+              .then(response => response.json())
+              .then(data => readAbiJSON(data))
+              .catch(error => {
+                console.error('Error fetching abi:', error);
+              });
+    }
+    catch (error) {
+      console.log("Error during ABI fetching: ", error);
+    }
+
+    try {
+      let abiArray = [];
+      for (let key in contractABI) {
+        abiArray.push([key,contractABI[key]]);
+      }
+      console.log("ABI: ", abiArray);
+      const arduinoNFT_contract = new web3.eth.Contract(abiArray, contractAddress);
+    }
+    catch (error) {
+      console.error('Error contract creation: ', error);
+    }
   }
 
-  async function readJSON(data) {
+
+
+  async function readConfigJSON(data) {
     console.log(data);
     abiPath = data.abi_path;
     console.log(abiPath);
     contractAddress = data.contract_address;
     console.log(contractAddress);
+  }
+
+  async function readAbiJSON(data) {
+    //console.log(data);
+    contractABI = data;
+    console.log(contractABI);
   }
 
   /**
