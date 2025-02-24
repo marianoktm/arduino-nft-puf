@@ -70,8 +70,6 @@
               .catch(error => {
                 console.error('Error fetching config.json:', error);
               });
-      console.log("ABI: ", contractABI);
-      console.log("Address: ", contractAddress);
     }
     catch (error) {
       console.log("Error during JSON fetching: ", error);
@@ -80,10 +78,10 @@
 
   async function readJSON(data) {
     console.log(data);
-    JSON.
     abiPath = data.abi_path;
+    console.log(abiPath);
     contractAddress = data.contract_address;
-
+    console.log(contractAddress);
   }
 
   /**
