@@ -384,21 +384,33 @@
   async function mintHandler() {
     if (!window.ethereum) {
       alert("You must be connected to MetaMask first!");
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
     const pufInput = document.getElementById("pufInput").value;
     if (!pufInput) {
       alert("Insert a valid PUF!");
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
     const accountInput = document.getElementById("accountInput").value;
     if (!accountInput) {
       alert("Insert a valid account!");
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
@@ -411,7 +423,11 @@
     catch (error) {
       alert(`Contract error: ${error}`);
       console.log("Fee error: ", error);
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
@@ -425,7 +441,11 @@
     catch (error) {
       alert(`Account error: ${error}`);
       console.log("Account error: ", error);
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
@@ -442,7 +462,11 @@
     catch (error) {
       alert(`Fee error: ${error}`);
       console.log("Fee error: ", error);
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
@@ -458,7 +482,11 @@
     catch (error) {
       alert(`Transaction error: ${error}`);
       console.log("Transaction error: ", error)
-      document.getElementById('warn').innerHTML = `${error}`;
+      document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; color: #721c24;">
+    <strong>Error:</strong> ${error}
+  </div>
+`;
       return;
     }
 
