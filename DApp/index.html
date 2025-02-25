@@ -31,17 +31,188 @@
 <h3>Results:</h3>
 <div id="transactionResult"></div>
 
-
-
 <!-- scripts -->
 <script type="module">
   let web3;
-  let contract;
 
-  let abiPath = "";
-  let contractABI;
-  let contractAddress = "";
-  let abiArray = [];
+  const contractABI = [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialOwner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "deviceDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "deviceDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ownerOfDevice",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
+    }
+  ];
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
   /**
    * "main"
@@ -62,59 +233,10 @@
 
     if (window.ethereum.isMetaMask) {
       document.getElementById('provider').innerText = 'Connected to Ethereum with MetaMask.';
-    } else {
+    }
+    else {
       document.getElementById('provider').innerText = 'Non-MetaMask Ethereum provider detected.';
     }
-
-    try {
-      await fetch('./config.json')
-              .then(response => response.json())
-              .then(data => readConfigJSON(data))
-              .catch(error => {
-                console.error('Error fetching config.json:', error);
-              });
-    }
-    catch (error) {
-      console.log("Error during JSON fetching: ", error);
-    }
-
-    try {
-      await fetch(abiPath)
-              .then(response => response.json())
-              .then(data => readAbiJSON(data))
-              .catch(error => {
-                console.error('Error fetching abi:', error);
-              });
-    }
-    catch (error) {
-      console.log("Error during ABI fetching: ", error);
-    }
-
-    try {
-      for (let key in contractABI) {
-        abiArray.push([key,contractABI[key]]);
-      }
-      console.log("contractABI:", contractABI);
-      //abiArray = JSON.parse(contractABI.toString());
-      console.log("ABI: ", abiArray);
-    }
-    catch (error) {
-      console.error('Abi conversion error: ', error);
-    }
-  }
-
-  async function readConfigJSON(data) {
-    console.log(data);
-    abiPath = data.abi_path;
-    console.log(abiPath);
-    contractAddress = data.contract_address;
-    console.log(contractAddress);
-  }
-
-  async function readAbiJSON(data) {
-    //console.log(data);
-    contractABI = data;
-    console.log(contractABI);
   }
 
   /**
@@ -124,16 +246,12 @@
     try {
       // Get current account on a button click
       document.getElementById('getCurrentAccountButton').addEventListener('click', getCurrentAccountHandler);
-      // Verifica il proprietario dell'NFT
-      //document.getElementById("checkNftOwnerButton").addEventListener("click", checkNftOwnerHandler);
       // Mint NFT con la PUF
       document.getElementById("mintButton").addEventListener("click", mintHandler);
-      document.getElementById("checkNftOwnerButton").addEventListener("click", checkNftOwnershipHandler);
     }
     catch (error) {
       console.log("Error during event handlers registration: ", error);
     }
-
   }
 
   /**
@@ -151,9 +269,6 @@
    *  It gets the PUF from the "pufInput" field, converts it into a SHA-256 digest and
    *  mints a new NFT from it.
    */
-
-
-
   async function mintHandler() {
     if (!window.ethereum) {
       alert("You must be connected to MetaMask first!");
@@ -168,284 +283,68 @@
 
     const accountInput = document.getElementById("accountInput").value;
     if (!accountInput) {
-      alert("Inserisci a valid account!");
+      alert("Insert a valid account!");
       return;
     }
 
     const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
-    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
-    //________
 
-    const contractChatABI = [
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "initialOwner",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "deviceDigest",
-            "type": "bytes32"
-          }
-        ],
-        "name": "mint",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "deviceDigest",
-            "type": "bytes32"
-          }
-        ],
-        "name": "ownerOfDevice",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "previousOwner",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          }
-        ],
-        "name": "Transfer",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "approved",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          }
-        ],
-        "name": "Approval",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "operator",
-            "type": "address"
-          },
-          {
-            "indexed": false,
-            "internalType": "bool",
-            "name": "approved",
-            "type": "bool"
-          }
-        ],
-        "name": "ApprovalForAll",
-        "type": "event"
-      }
-    ];
+    let contract;
+    try {
+      contract = new web3.eth.Contract(contractABI, contractAddress);
+    }
+    catch (error) {
+      alert(`Contract error: ${error}`);
+      console.log("Fee error: ", error);
+      return;
+    }
+
+    let accounts;
+    let fromAccount;
+    try {
+      accounts = await web3.eth.getAccounts();
+      fromAccount = accounts[0];
+      console.log("From Account: ", fromAccount);
+    }
+    catch (error) {
+      alert(`Account error: ${error}`);
+      console.log("Account error: ", error);
+      return;
+    }
+
+    let latestBlock;
+    let baseFeePerGas;
+    let priorityFee;
+    let maxFeePerGas;
+    try {
+      latestBlock = await web3.eth.getBlock("latest");
+      baseFeePerGas = latestBlock.baseFeePerGas; // Base fee del blocco più recente
+      priorityFee = web3.utils.toWei('2', 'gwei'); // Priorità per il miner (es. 2 Gwei)
+      maxFeePerGas = Number(baseFeePerGas) + Number(priorityFee); // Massimo fee per gas
+    }
+    catch (error) {
+      alert(`Fee error: ${error}`);
+      console.log("Fee error: ", error);
+      return;
+    }
 
     try {
-      const arduinoNFTContract = new web3.eth.Contract(contractChatABI, contractAddress);
-      const accounts = await web3.eth.getAccounts();
-      const from = accounts[0];
-      console.log(from);
-      const latestBlock = await web3.eth.getBlock("latest");
-      const baseFeePerGas = latestBlock.baseFeePerGas; // Base fee del blocco più recente
-      const priorityFee = web3.utils.toWei('2', 'gwei'); // Priorità per il miner (es. 2 Gwei)
-      const maxFeePerGas = Number(baseFeePerGas) + Number(priorityFee); // Massimo fee per gas
-
-      const receipt = await arduinoNFTContract.methods.mint(accountInput, hashedPUF).send({
-        from: from,
+      const receipt = await contract.methods.mint(accountInput, hashedPUF).send({
+        from: fromAccount,
         gas: 10000000,
         maxFeePerGas: maxFeePerGas,
         maxPriorityFeePerGas: priorityFee
       });
       console.log("Receipt: ", receipt);
-    } catch (error) {
-      console.error("Receipt error:", error);
-      alert("Receipt error");
     }
-
-    //________
-    try {
-      document.getElementById('warn').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
-      alert("NFT successfully minted!");
-    } catch (error) {
-      console.error("Minting error:", error);
-      alert("Transaction error. Check the console for more informations.");
-    }
-  }
-
-  async function checkNftOwnerHandler() {
-    if (!window.ethereum) {
-      alert("You must be connected to MetaMask first!");
+    catch (error) {
+      alert(`Transaction error: ${error}`);
+      console.log("Transaction error: ", error);
       return;
     }
 
-    const pufInput = document.getElementById("pufInput").value;
-    if (!pufInput) {
-      alert("Insert a valid PUF!");
-      return;
-    }
-
-
-    // Converte la PUF in SHA-256
-    const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
-    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
-
-    try {
-      const owner = await contract.ownerOfDevice(formattedDeviceDigest);
-      alert(`Device owner: ${owner}`);
-    } catch (error) {
-      console.error("Error during owner retrieval:", error);
-      alert("Error: An NFT with this PUF may not be minted yet...");
-    }
-  }
-
-  /**
-   *  Event handler for the "click" event on the "mintButton" button.
-   *  It gets the PUF from the "pufInput" field, converts it into a SHA-256 digest and
-   *  mints a new NFT from it.
-   */
-  async function convertPufHandler() {
-    const pufInput = document.getElementById("pufInput").value;
-    if (!pufInput) {
-      alert("Inserisci un valore PUF valido!");
-      return;
-    }
-
-    // Converti la PUF in SHA-256 usando ethers.js
-    const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
-    document.getElementById("sha256Result").innerText = `SHA-256: ${hashedPUF}`;
-
-    // Formatta l'hash per il contratto Ethereum
-    const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
-    document.getElementById("formattedResult").innerText = `Device Digest: ${ethers.utils.hexlify(formattedDeviceDigest)}`;
-
-    // Copia negli appunti
-    /*
-    navigator.clipboard.writeText(ethers.utils.hexlify(formattedDeviceDigest))
-            .then(() => alert("Hash copiato negli appunti!"))
-            .catch(err => console.error("Errore nel copiare:", err));
-     */
-  }
-
-  async function mint(pufHash, ownerPrivateKey) {
-
-  }
-
-  async function getOwner(pufHash) {
-
+    document.getElementById('warn').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
+    alert("NFT successfully minted!");
   }
 
 </script>
