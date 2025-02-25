@@ -462,8 +462,15 @@
       return;
     }
 
-    document.getElementById('transactionResult').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
-    alert("NFT successfully minted!");
+    document.getElementById('transactionResult').innerHTML = `
+  <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #81c784; color: #388e3c;">
+    <h3>Transaction Successful!</h3>
+    <p><strong>PUF (hashed):</strong> <span style="font-weight: bold; color: #333;">${hashedPUF}</span></p>
+    <p><strong>New NFT Owner:</strong> <span style="font-weight: bold; color: #333;">${accountInput}</span></p>
+    <p style="font-style: italic; color: #555;">Your NFT has been successfully minted!</p>
+  </div>
+`;
+
   }
 
 </script>
