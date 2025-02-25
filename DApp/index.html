@@ -8,32 +8,136 @@
   <!-- import Web3.js -->
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #444;
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      color: #333;
+      font-size: 1.25rem;
+    }
+
+    #warn {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .input-group textarea {
+      min-height: 100px;
+    }
+
+    .btn {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .result-container {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+    }
+
+    #transactionResult {
+      font-size: 1rem;
+      color: #333;
+    }
+  </style>
 </head>
 
 <body>
-<!-- placeholders -->
-<div id="provider"></div>
-<div id="currentAccount"></div>
 
-<div id="warn" style="color: red"></div>
+<h1>Web3.js MetaMask Tutorial</h1>
 
-<div>
-  <button id="getCurrentAccountButton">Show current account</button>
+<!-- Provider and current account display -->
+<div class="container">
+  <div id="provider"></div>
+  <div id="currentAccount"></div>
+
+  <div id="warn"></div>
+
+  <div class="input-group">
+    <button class="btn" id="getCurrentAccountButton">Show current account</button>
+  </div>
 </div>
 
-<h2>PUF Input</h2>
-<div>
-  <label for="pufInput">Insert PUF here:</label>
-  <textarea id="pufInput" placeholder="AB AB AB AB..."></textarea>
-</div>
-<br>
-<div>
-  <label for="accountInput">Insert new NFT owner's public key here:</label>
-  <input type="text" id="accountInput" placeholder="0xabab...">
-</div>
-<br>
-<div>
-  <button id="mintButton">Convert PUF and mint!</button>
+<!-- PUF and account input -->
+<div class="container">
+  <h2>PUF Input</h2>
+  <div class="input-group">
+    <label for="pufInput">Insert PUF here:</label>
+    <textarea id="pufInput" placeholder="AB AB AB AB..."></textarea>
+  </div>
+  <div class="input-group">
+    <label for="accountInput">Insert new NFT owner's public key here:</label>
+    <input type="text" id="accountInput" placeholder="0xabab...">
+  </div>
+  <div class="input-group">
+    <button class="btn" id="mintButton">Convert PUF and mint!</button>
+  </div>
 </div>
 
 <h3>Results:</h3>
