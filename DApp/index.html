@@ -31,6 +31,8 @@
 <h3>Results:</h3>
 <div id="transactionResult"></div>
 
+
+
 <!-- scripts -->
 <script type="module">
   let web3;
@@ -39,6 +41,7 @@
   let abiPath = "";
   let contractABI;
   let contractAddress = "";
+  let abiArray = [];
 
   /**
    * "main"
@@ -88,19 +91,17 @@
     }
 
     try {
-      let abiArray = [];
       for (let key in contractABI) {
         abiArray.push([key,contractABI[key]]);
       }
+      console.log("contractABI:", contractABI);
+      //abiArray = JSON.parse(contractABI.toString());
       console.log("ABI: ", abiArray);
-      const arduinoNFT_contract = new web3.eth.Contract(abiArray, contractAddress);
     }
     catch (error) {
-      console.error('Error contract creation: ', error);
+      console.error('Abi conversion error: ', error);
     }
   }
-
-
 
   async function readConfigJSON(data) {
     console.log(data);
@@ -127,6 +128,7 @@
       //document.getElementById("checkNftOwnerButton").addEventListener("click", checkNftOwnerHandler);
       // Mint NFT con la PUF
       document.getElementById("mintButton").addEventListener("click", mintHandler);
+      document.getElementById("checkNftOwnerButton").addEventListener("click", checkNftOwnershipHandler);
     }
     catch (error) {
       console.log("Error during event handlers registration: ", error);
@@ -149,6 +151,9 @@
    *  It gets the PUF from the "pufInput" field, converts it into a SHA-256 digest and
    *  mints a new NFT from it.
    */
+
+
+
   async function mintHandler() {
     if (!window.ethereum) {
       alert("You must be connected to MetaMask first!");
@@ -169,7 +174,209 @@
 
     const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
     const formattedDeviceDigest = ethers.utils.arrayify(hashedPUF);
+    //________
 
+    const contractChatABI = [
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "initialOwner",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "deviceDigest",
+            "type": "bytes32"
+          }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "deviceDigest",
+            "type": "bytes32"
+          }
+        ],
+        "name": "ownerOfDevice",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          }
+        ],
+        "name": "Transfer",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "approved",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          }
+        ],
+        "name": "Approval",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "operator",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "approved",
+            "type": "bool"
+          }
+        ],
+        "name": "ApprovalForAll",
+        "type": "event"
+      }
+    ];
+
+    try {
+      const arduinoNFTContract = new web3.eth.Contract(contractChatABI, contractAddress);
+      const accounts = await web3.eth.getAccounts();
+      const from = accounts[0];
+      console.log(from);
+      const latestBlock = await web3.eth.getBlock("latest");
+      const baseFeePerGas = latestBlock.baseFeePerGas; // Base fee del blocco più recente
+      const priorityFee = web3.utils.toWei('2', 'gwei'); // Priorità per il miner (es. 2 Gwei)
+      const maxFeePerGas = Number(baseFeePerGas) + Number(priorityFee); // Massimo fee per gas
+
+      const receipt = await arduinoNFTContract.methods.mint(accountInput, hashedPUF).send({
+        from: from,
+        gas: 10000000,
+        maxFeePerGas: maxFeePerGas,
+        maxPriorityFeePerGas: priorityFee
+      });
+      console.log("Receipt: ", receipt);
+    } catch (error) {
+      console.error("Receipt error:", error);
+      alert("Receipt error");
+    }
+
+    //________
     try {
       document.getElementById('warn').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
       alert("NFT successfully minted!");
@@ -190,6 +397,7 @@
       alert("Insert a valid PUF!");
       return;
     }
+
 
     // Converte la PUF in SHA-256
     const hashedPUF = ethers.utils.sha256(ethers.utils.toUtf8Bytes(pufInput));
