@@ -183,7 +183,7 @@ The contract is now deployed, and you can interact with it.
 
 ### 3. Interacting with the NFT [WIP]
 
-This section is a work in progress.
+WIP
 
 ## Authors
 

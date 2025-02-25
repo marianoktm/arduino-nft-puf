@@ -18,15 +18,23 @@
 <div id="warn" style="color: red"></div>
 
 <div>
-  <button id="getCurrentAccountButton">Request MetaMask Accounts</button>
+  <button id="getCurrentAccountButton">Show current account</button>
 </div>
 
 <h2>PUF Input</h2>
-<label for="pufInput">Insert PUF here:</label>
-<input type="text" id="pufInput" placeholder="0xABABAB...">
-<label for="accountInput">Insert new NFT owner's public key here:</label>
-<input type="text" id="accountInput" placeholder="0xabab...">
-<button id="mintButton">Convert PUF and mint!</button>
+<div>
+  <label for="pufInput">Insert PUF here:</label>
+  <textarea id="pufInput" placeholder="AB AB AB AB..."></textarea>
+</div>
+<br>
+<div>
+  <label for="accountInput">Insert new NFT owner's public key here:</label>
+  <input type="text" id="accountInput" placeholder="0xabab...">
+</div>
+<br>
+<div>
+  <button id="mintButton">Convert PUF and mint!</button>
+</div>
 
 <h3>Results:</h3>
 <div id="transactionResult"></div>
@@ -272,18 +280,21 @@
   async function mintHandler() {
     if (!window.ethereum) {
       alert("You must be connected to MetaMask first!");
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
     const pufInput = document.getElementById("pufInput").value;
     if (!pufInput) {
       alert("Insert a valid PUF!");
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
     const accountInput = document.getElementById("accountInput").value;
     if (!accountInput) {
       alert("Insert a valid account!");
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
@@ -296,6 +307,7 @@
     catch (error) {
       alert(`Contract error: ${error}`);
       console.log("Fee error: ", error);
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
@@ -309,6 +321,7 @@
     catch (error) {
       alert(`Account error: ${error}`);
       console.log("Account error: ", error);
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
@@ -325,6 +338,7 @@
     catch (error) {
       alert(`Fee error: ${error}`);
       console.log("Fee error: ", error);
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
@@ -339,11 +353,12 @@
     }
     catch (error) {
       alert(`Transaction error: ${error}`);
-      console.log("Transaction error: ", error);
+      console.log("Transaction error: ", error)
+      document.getElementById('warn').innerHTML = `${error}`;
       return;
     }
 
-    document.getElementById('warn').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
+    document.getElementById('transactionResult').innerHTML = `Puf: ${hashedPUF}, Owner: ${accountInput}`;
     alert("NFT successfully minted!");
   }
 
